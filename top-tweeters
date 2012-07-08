@@ -1,0 +1,35 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'googlecharts'
+require 'open-uri'
+require 'launchy'
+require 'twitter'
+require 'json'
+
+hist = Hash.new(0)
+config = JSON.load(File.open('config').read())
+
+Twitter.configure do |tw_config|
+  tw_config.consumer_key       = config['consumer_key']
+  tw_config.consumer_secret    = config['consumer_secret']
+  tw_config.oauth_token        = config['oauth_token']
+  tw_config.oauth_token_secret = config['oauth_token_secret']
+end
+
+Twitter.home_timeline({ :count => 200 }).each do |status|
+  hist[status.user.screen_name] += 1
+end
+
+sorted_hist = hist.entries.map{ |n, c| [c, n] }.sort.reverse[0..10]
+counts      = sorted_hist.map{ |c,n| c }
+names       = sorted_hist.map{ |c,n| n }
+
+chart_url   = Gchart.pie(:title => 'Top timeline tweeters',
+                         :size => '650x450', 
+                         :data => counts, 
+                         :labels => names,
+                         :chco => '0000FF') + '&chco=396A9E'
+
+`curl -o image.png "#{chart_url}"`
+`open image.png`
