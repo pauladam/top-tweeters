@@ -9,4 +9,5 @@ tweeters in your home timeline.
 consumer_secret etc)
 3. $ ./top-tweeters
 
+![Example chart](http://sht.tl/SDs6O)
 
